@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="MyProject" default="default" basedir=".">
+	<property name="src.dir" location="src" />
+	<property name="build.dir" location="bin" />
+	<property name="dist.dir" location="dist" />
+	<property name="docs.dir" location="docs" />
+
+	<!-- Deletes the docs, build, and dist directory-->
+	<target name="clean">
+		<delete dir="${build.dir}" />
+		<delete dir="${docs.dir}" />
+		<delete dir="${dist.dir}" />
+	</target>
+
+	<!-- Generates the docs, build, and dist directory-->
+	<target name="makedirectory">
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${docs.dir}" />
+		<mkdir dir="${dist.dir}" />
+	</target>
+
+	<!-- Compiles java code -->
+	<target name="compile" depends="clean, makedirectory">
+		<javac srcdir="${src.dir}" destdir="${build.dir}" includeantruntime="false">
+		</javac>
+
+	</target>
+
+	<!-- Creates a Javadoc -->
+	<target name="docs" depends="compile">
+		<javadoc packagenames="src" sourcepath="${src.dir}" destdir="${docs.dir}">
+			<fileset dir="${src.dir}">
+				<include name="**" />
+			</fileset>
+		</javadoc>
+	</target>
+
+	<!-- Runs the program and prompts the user for input -->
+
+	<target name="run" description="run the project" depends="compile">
+		<input message="Input maximum integer to check." addproperty="prime-max" />
+		<java dir="${build.dir}" classname="assignment4.karen.raymond.Sieve" fork="yes">
+			<arg value="${prime-max}" />
+		</java>
+	</target>
+
+	<!--Creates the deployable jar file  -->
+	<target name="jar" depends="compile">
+		<jar destfile="${dist.dir}\SieveOfEratosthenes.jar" basedir="${build.dir}">
+			<manifest>
+				<attribute name="Main-Class" value="assignment4.karen.raymond.Sieve" />
+			</manifest>
+		</jar>
+	</target>
+
+	<!-- Runs the program from a jar file and prompts the user for input -->
+
+	<target name="runfromjar" description="run from a jar file" depends="jar, compile, docs">
+		<input message="Input maximum integer to check." addproperty="prime-max" />
+		<java jar="${dist.dir}\SieveOfEratosthenes.jar" fork="true" failonerror="true" maxmemory="128m">
+			<arg value="${prime-max}" />
+			<classpath>
+				<pathelement location="${dist.dir}\SieveOfEratosthenes.jar" />
+				<pathelement path="${java.class.path}" />
+			</classpath>
+		</java>
+	</target>
+	<target name="default" depends="compile, jar, docs">
+		<description>Default target.</description>
+	</target>
+</project>
+
